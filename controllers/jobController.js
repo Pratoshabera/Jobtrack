@@ -6,6 +6,17 @@ exports.createJob = async (req, res) => {
   try {
     const { title, company, status } = req.body;
 
+    // VALIDATION
+    if (!title || !company) {
+      return res.status(400).json({ message: "Title and company are required" });
+    }
+
+    const validStatus = ["Applied", "Interview", "Offer", "Rejected"];
+
+    if (status && !validStatus.includes(status)) {
+      return res.status(400).json({ message: "Invalid status value" });
+    }
+
     const job = await Job.create({
       title,
       company,
@@ -59,6 +70,18 @@ exports.getJobs = async (req, res) => {
 // Update Job
 exports.updateJob = async (req, res) => {
   try {
+    const { title, company, status } = req.body;
+
+    if (!title && !company && !status) {
+      return res.status(400).json({ message: "At least one field required to update" });
+    }
+
+    const validStatus = ["Applied", "Interview", "Offer", "Rejected"];
+
+    if (status && !validStatus.includes(status)) {
+      return res.status(400).json({ message: "Invalid status value" });
+    }
+
     const job = await Job.findOneAndUpdate(
       { _id: req.params.id, user: req.user.id },
       req.body,
